@@ -1,65 +1,107 @@
-import Image from "next/image";
+import {
+  getFinancialSummary,
+  getMonthlyData,
+  getProjectTickets,
+  getSemesterProgress,
+} from "@/lib/db/view-general.server";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Clock, TrendingUp, Ticket } from "lucide-react";
+import { FinancialCards } from "./_components/financial-cards";
+import { SemesterProgress } from "./_components/semester-progress";
+import { MonthlyLineChart } from "./_components/monthly-line-chart";
+import { TicketHistory } from "./_components/ticket-history";
 
-export default function Home() {
+function getAcademicYearLabel(): string {
+  const now = new Date();
+  const currentMonth = now.getMonth();
+  const currentYear = now.getFullYear();
+
+  if (currentMonth >= 7) {
+    return `${currentYear}-${currentYear + 1}`;
+  } else {
+    return `${currentYear - 1}-${currentYear}`;
+  }
+}
+
+export default async function HomePage() {
+  const [financialSummary, monthlyData, tickets, semesterProgress] =
+    await Promise.all([
+      getFinancialSummary(),
+      getMonthlyData(),
+      getProjectTickets(),
+      getSemesterProgress(),
+    ]);
+
+  const academicYearLabel = getAcademicYearLabel();
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="flex flex-col gap-6 p-6">
+      <div>
+        <h1 className="text-3xl font-bold tracking-tight">
+          ACM Finance Dashboard
+        </h1>
+        <p className="text-muted-foreground">
+          Academic Year {academicYearLabel}
+        </p>
+      </div>
+
+      {/* Row 1: Financial Cards + Semester Progress */}
+      <div className="grid gap-4 grid-cols-1 lg:grid-cols-5">
+        <div className="lg:col-span-4">
+          <FinancialCards
+            balance={financialSummary.currentBalance}
+            expenses={financialSummary.totalExpenses}
+            revenue={financialSummary.totalRevenue}
+          />
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+
+        <Card className="lg:col-span-1">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Semester Progress</CardTitle>
+            <Clock className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <SemesterProgress
+              daysLeft={semesterProgress.daysLeft}
+              percentage={semesterProgress.percentage}
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Row 2: Line Chart + Recent Projects */}
+      <div className="grid gap-4 grid-cols-1 lg:grid-cols-3">
+        <Card className="lg:col-span-2">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <div>
+              <CardTitle>Monthly Expenses vs Revenue</CardTitle>
+              <CardDescription>
+                Financial comparison from August to July (AY {academicYearLabel})
+              </CardDescription>
+            </div>
+            <TrendingUp className="h-5 w-5 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <MonthlyLineChart data={monthlyData} />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Recent Projects</CardTitle>
+            <Ticket className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <TicketHistory tickets={tickets} />
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
