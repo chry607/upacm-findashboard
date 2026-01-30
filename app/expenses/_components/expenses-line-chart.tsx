@@ -24,7 +24,7 @@ const ACADEMIC_YEAR_MONTHS = [
   { month: 7, label: "Jul" },
 ];
 
-interface MonthlyExpense {
+export interface MonthlyExpense {
   month: number;
   year: number;
   total_expenses: number;

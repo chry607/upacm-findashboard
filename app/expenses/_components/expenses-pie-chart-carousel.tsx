@@ -15,12 +15,12 @@ import {
   type ChartConfig,
 } from "@/components/ui/chart";
 
-interface ProjectExpense {
+export interface ProjectExpense {
   project_name: string;
   total_expenses: number;
 }
 
-interface ExpensesPieChartCarouselProps {
+export interface ExpensesPieChartCarouselProps {
   academicYearData: ProjectExpense[];
   currentSemData: ProjectExpense[];
   lastSemData: ProjectExpense[];

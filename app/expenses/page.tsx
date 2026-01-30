@@ -22,6 +22,9 @@ import { ExpensesLineChart } from "./_components/expenses-line-chart";
 import { ExpensesPieChartCarousel } from "./_components/expenses-pie-chart-carousel";
 import { TopProjectsList } from "./_components/top-projects-list";
 
+import type { MonthlyExpense } from "./_components/expenses-line-chart";
+import type { ProjectExpense } from "./_components/expenses-pie-chart-carousel";
+
 export default async function ExpensesPage() {
   const { startYear, endYear } = await getCurrentAcademicYear();
   const academicYearLabel = `AY ${startYear}-${endYear}`;
@@ -152,7 +155,7 @@ export default async function ExpensesPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <ExpensesLineChart data={monthlyExpenses} startYear={startYear} />
+            <ExpensesLineChart data={monthlyExpenses as MonthlyExpense[]} startYear={startYear} />
           </CardContent>
         </Card>
 
@@ -164,9 +167,9 @@ export default async function ExpensesPage() {
           </CardHeader>
           <CardContent>
             <ExpensesPieChartCarousel
-              academicYearData={expensesBreakdownYear}
-              currentSemData={expensesBreakdownCurrentSem}
-              lastSemData={expensesBreakdownLastSem}
+              academicYearData={expensesBreakdownYear as ProjectExpense[]}
+              currentSemData={expensesBreakdownCurrentSem as ProjectExpense[]}
+              lastSemData={expensesBreakdownLastSem as ProjectExpense[]}
               academicYearLabel={academicYearLabel}
             />
           </CardContent>
