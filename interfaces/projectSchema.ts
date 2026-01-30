@@ -5,8 +5,8 @@ import { z } from "zod";
 export const projectInfoSchema = z.object({
   name: z.string().min(1),
   desc: z.string().optional(),
-  implementation_date: z.coerce.date(),
-  submission_date: z.coerce.date(),
+  implementation_date: z.date(),
+  submission_date: z.date(),
   status: z.string(),
 });
 
@@ -15,8 +15,8 @@ export const expenseSchema = z.object({
   name: z.string(),
   desc: z.string().optional(),
   store_name: z.string(),
-  unit_price: z.number().positive(),
-  quantity: z.number().int().positive(),
+  unit_price: z.number(),
+  quantity: z.number(),
   mode_of_payment: z.string(),
 });
 

@@ -57,7 +57,7 @@ export default function EditProjectDrawer({ projectId }: EditProjectDrawerProps)
   const [initialLoading, setInitialLoading] = useState(false);
   const [alert, setAlert] = useState<AlertState>({ type: null, message: "", visible: false });
 
-  const form = useForm<ProjectFormData>({
+  const form = useForm<ProjectFormData, ProjectFormData, ProjectFormData>({
     resolver: zodResolver(projectSchema),
     mode: "onBlur",
     defaultValues: {
@@ -125,8 +125,14 @@ export default function EditProjectDrawer({ projectId }: EditProjectDrawerProps)
               implementation_date: isNaN(implDate.getTime()) ? new Date() : implDate,
               submission_date: isNaN(subDate.getTime()) ? new Date() : subDate,
               status: projectData.status,
-              expenses: projectData.expenses,
-              revenue: projectData.revenue,
+              expenses: projectData.expenses.map((expense: any) => ({
+                ...expense,
+                date: expense.date instanceof Date ? expense.date : new Date(expense.date),
+              })),
+              revenue: projectData.revenue.map((rev: any) => ({
+                ...rev,
+                date: rev.date instanceof Date ? rev.date : new Date(rev.date),
+              })),
             });
 
             setTimeout(() => {
