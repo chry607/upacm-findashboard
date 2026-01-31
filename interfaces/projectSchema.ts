@@ -5,8 +5,8 @@ import { z } from "zod";
 export const projectInfoSchema = z.object({
   name: z.string().min(1),
   desc: z.string().optional(),
-  implementation_date: z.date(),
-  submission_date: z.date(),
+  implementation_date: z.coerce.date(),
+  submission_date: z.coerce.date(),
   status: z.string(),
 });
 
@@ -34,10 +34,32 @@ export const revenueSchema = z.object({
 export const revenuesSchema = z.array(revenueSchema);
 
 // --- Combined schema ---
-export const projectSchema = projectInfoSchema
-  .extend({
-    expenses: expensesSchema,
-    revenue: revenuesSchema,
-  });
+export const projectSchema = z.object({
+  name: z.string().min(1),
+  desc: z.string().optional(),
+  implementation_date: z.coerce.date(),
+  submission_date: z.coerce.date(),
+  status: z.string(),
+  expenses: z.array(
+    z.object({
+      name: z.string(),
+      desc: z.string().optional(),
+      store_name: z.string(),
+      unit_price: z.number(),
+      quantity: z.number(),
+      mode_of_payment: z.string(),
+    })
+  ),
+  revenue: z.array(
+    z.object({
+      name: z.string(),
+      desc: z.string().optional(),
+      amount: z.number().positive(),
+      mode_of_payment: z.string(),
+      date: z.coerce.date(),
+    })
+  ),
+});
 
-export type ProjectFormData = z.infer<typeof projectSchema>;
+export type ProjectFormInput = z.input<typeof projectSchema>;
+export type ProjectFormData = z.output<typeof projectSchema>;

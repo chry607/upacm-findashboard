@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 
-import { projectSchema, ProjectFormData } from "@/interfaces/projectSchema";
+import { projectSchema, ProjectFormData, ProjectFormInput } from "@/interfaces/projectSchema";
 import { getProjectForEdit, updateFullProject } from "@/lib/db/edit-project.server";
 import { deleteProject } from "@/lib/db/delete-project.server";
 
@@ -57,7 +57,8 @@ export default function EditProjectDrawer({ projectId }: EditProjectDrawerProps)
   const [initialLoading, setInitialLoading] = useState(false);
   const [alert, setAlert] = useState<AlertState>({ type: null, message: "", visible: false });
 
-  const form = useForm<ProjectFormData, ProjectFormData, ProjectFormData>({
+  // useForm: input type (what the form accepts) vs output type (what Zod returns)
+  const form = useForm<ProjectFormInput, any, ProjectFormData>({
     resolver: zodResolver(projectSchema),
     mode: "onBlur",
     defaultValues: {
@@ -111,12 +112,12 @@ export default function EditProjectDrawer({ projectId }: EditProjectDrawerProps)
         try {
           const projectData = await getProjectForEdit(projectId);
           if (projectData) {
-            const implDate = projectData.implementation_date instanceof Date 
-              ? projectData.implementation_date 
+            const implDate = projectData.implementation_date instanceof Date
+              ? projectData.implementation_date
               : new Date(projectData.implementation_date);
-            
-            const subDate = projectData.submission_date instanceof Date 
-              ? projectData.submission_date 
+
+            const subDate = projectData.submission_date instanceof Date
+              ? projectData.submission_date
               : new Date(projectData.submission_date);
 
             form.reset({
@@ -127,6 +128,7 @@ export default function EditProjectDrawer({ projectId }: EditProjectDrawerProps)
               status: projectData.status,
               expenses: projectData.expenses.map((expense: any) => ({
                 ...expense,
+                // expense schema has no date in your original schema; if it does, keep this guard
                 date: expense.date instanceof Date ? expense.date : new Date(expense.date),
               })),
               revenue: projectData.revenue.map((rev: any) => ({
@@ -135,6 +137,7 @@ export default function EditProjectDrawer({ projectId }: EditProjectDrawerProps)
               })),
             });
 
+            // ensure form values (dates) are set
             setTimeout(() => {
               form.setValue("implementation_date", isNaN(implDate.getTime()) ? new Date() : implDate);
               form.setValue("submission_date", isNaN(subDate.getTime()) ? new Date() : subDate);
@@ -154,19 +157,21 @@ export default function EditProjectDrawer({ projectId }: EditProjectDrawerProps)
 
   const handleNext = async () => {
     if (step === 0) {
-      const projectFields = ["name", "desc", "implementation_date", "status"] as (keyof ProjectFormData)[];
+      // validate project fields before moving on
+      const projectFields = ["name", "desc", "implementation_date", "status"] as (keyof ProjectFormInput)[];
       const isValid = await form.trigger(projectFields);
 
       const values = form.getValues();
       const implDate = values.implementation_date;
       const subDate = values.submission_date;
 
+      // runtime checks to ensure valid Dates (the input might be unknown/string/etc.)
       const isImplDateValid = implDate instanceof Date && !isNaN(implDate.getTime());
       const isSubDateValid = subDate instanceof Date && !isNaN(subDate.getTime());
 
       if (!isValid || !isImplDateValid || !isSubDateValid) {
         if (!isImplDateValid || !isSubDateValid) {
-          form.setError("implementation_date", {
+          form.setError("implementation_date" as any, {
             type: "manual",
             message: "Please select a valid date",
           });
@@ -178,18 +183,11 @@ export default function EditProjectDrawer({ projectId }: EditProjectDrawerProps)
     setStep(step + 1);
   };
 
-  const handleSubmit = async () => {
-    const projectFields = ["name", "desc", "implementation_date", "status"] as (keyof ProjectFormData)[];
-    const isValid = await form.trigger(projectFields);
-    if (!isValid) {
-      showAlert("error", "Please fill in all required project fields.");
-      setStep(0);
-      return;
-    }
-
+  // ---------- NEW submit flow: let RHF + Zod parse data and pass parsed output ----------
+  const onSubmit = async (data: ProjectFormData) => {
     try {
       setLoading(true);
-      const data = form.getValues();
+      // data here is the Zod-parsed output (dates are Date objects)
       await updateFullProject(projectId, data);
 
       showAlert("success", "Project updated successfully!");
@@ -226,6 +224,7 @@ export default function EditProjectDrawer({ projectId }: EditProjectDrawerProps)
       setLoading(false);
     }
   };
+  // ---------------------------------------------------------------------------------------
 
   const handleDelete = async () => {
     try {
@@ -384,7 +383,12 @@ export default function EditProjectDrawer({ projectId }: EditProjectDrawerProps)
                     Next
                   </Button>
                 ) : (
-                  <Button type="button" onClick={handleSubmit} disabled={loading}>
+                  // IMPORTANT: use form.handleSubmit so resolver runs and returns parsed ProjectFormData
+                  <Button
+                    type="button"
+                    onClick={form.handleSubmit(onSubmit)}
+                    disabled={loading}
+                  >
                     {loading ? "Saving..." : "Save Changes"}
                   </Button>
                 )}
