@@ -22,6 +22,13 @@ import { RevenueLineChart } from "./_components/revenue-line-chart";
 import { RevenuePieChartCarousel } from "./_components/revenue-pie-chart-carousel";
 import { TopProjectsList } from "./_components/top-projects-list";
 
+const formatCurrency = (amount: number) => {
+  return new Intl.NumberFormat("en-PH", {
+    style: "currency",
+    currency: "PHP",
+  }).format(amount);
+};
+
 export default async function RevenuePage() {
   const { startYear, endYear } = await getCurrentAcademicYear();
   const academicYearLabel = `AY ${startYear}-${endYear}`;
@@ -30,10 +37,10 @@ export default async function RevenuePage() {
     totalRevenueYear,
     totalRevenueCurrentSem,
     totalRevenueLastSem,
-    monthlyRevenue,
-    revenueBreakdownYear,
-    revenueBreakdownCurrentSem,
-    revenueBreakdownLastSem,
+    monthlyRevenueRaw,
+    revenueBreakdownYearRaw,
+    revenueBreakdownCurrentSemRaw,
+    revenueBreakdownLastSemRaw,
     topProjects,
     previousRevenue,
   ] = await Promise.all([
@@ -48,14 +55,31 @@ export default async function RevenuePage() {
     getPreviousRevenue(),
   ]);
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("en-PH", {
-      style: "currency",
-      currency: "PHP",
-    }).format(amount);
-  };
+  // Transform monthly revenue data to match expected types
+  const monthlyRevenue = monthlyRevenueRaw.map((row) => ({
+    month: Number(row.month),
+    year: Number(row.year),
+    total_revenue: Number(row.total_revenue),
+  }));
 
-  const isIncrease = previousRevenue.percentageIncrease >= 0;
+  // Transform revenue breakdown data to match expected types
+  const revenueBreakdownYear = revenueBreakdownYearRaw.map((row) => ({
+    project_name: String(row.project_name),
+    total_revenue: Number(row.total_revenue),
+  }));
+
+  const revenueBreakdownCurrentSem = revenueBreakdownCurrentSemRaw.map((row) => ({
+    project_name: String(row.project_name),
+    total_revenue: Number(row.total_revenue),
+  }));
+
+  const revenueBreakdownLastSem = revenueBreakdownLastSemRaw.map((row) => ({
+    project_name: String(row.project_name),
+    total_revenue: Number(row.total_revenue),
+  }));
+
+  const percentageIncrease = previousRevenue?.percentageIncrease ?? 0;
+  const isIncrease = percentageIncrease >= 0;
 
   return (
     <div className="flex flex-col gap-6 p-6">
@@ -77,7 +101,7 @@ export default async function RevenuePage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {formatCurrency(Number(totalRevenueYear))}
+              {formatCurrency(Number(totalRevenueYear) || 0)}
             </div>
             <p className="text-xs text-muted-foreground">
               Full academic year revenue
@@ -94,7 +118,7 @@ export default async function RevenuePage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {formatCurrency(Number(totalRevenueCurrentSem))}
+              {formatCurrency(Number(totalRevenueCurrentSem) || 0)}
             </div>
             <p className="text-xs text-muted-foreground">
               This semester&apos;s revenue
@@ -111,7 +135,7 @@ export default async function RevenuePage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {formatCurrency(Number(totalRevenueLastSem))}
+              {formatCurrency(Number(totalRevenueLastSem) || 0)}
             </div>
             <p className="text-xs text-muted-foreground">
               Previous semester&apos;s revenue
@@ -132,10 +156,10 @@ export default async function RevenuePage() {
           </CardHeader>
           <CardContent>
             <div className={`text-2xl font-bold ${isIncrease ? "text-green-500" : "text-red-500"}`}>
-              {isIncrease ? "+" : ""}{previousRevenue.percentageIncrease}%
+              {isIncrease ? "+" : ""}{percentageIncrease.toFixed(1)}%
             </div>
             <p className="text-xs text-muted-foreground">
-              vs {previousRevenue.previousYear} ({formatCurrency(previousRevenue.previousTotalRevenue)})
+              vs {previousRevenue?.previousYear ?? "N/A"} ({formatCurrency(Number(previousRevenue?.previousTotalRevenue) || 0)})
             </p>
           </CardContent>
         </Card>
@@ -143,7 +167,6 @@ export default async function RevenuePage() {
 
       {/* Charts Row */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {/* Line Chart - Monthly Revenue */}
         <Card className="col-span-full lg:col-span-2">
           <CardHeader>
             <CardTitle>Monthly Revenue ({academicYearLabel})</CardTitle>
@@ -156,7 +179,6 @@ export default async function RevenuePage() {
           </CardContent>
         </Card>
 
-        {/* Pie Chart Carousel - Breakdown by Project */}
         <Card className="col-span-full md:col-span-1">
           <CardHeader>
             <CardTitle>Revenue Breakdown</CardTitle>
@@ -173,7 +195,6 @@ export default async function RevenuePage() {
         </Card>
       </div>
 
-      {/* Top Projects List */}
       <Card>
         <CardHeader>
           <CardTitle>Top 5 Highest Revenue Projects</CardTitle>
