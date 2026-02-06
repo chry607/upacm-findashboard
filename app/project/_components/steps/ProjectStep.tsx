@@ -1,6 +1,6 @@
 import { UseFormReturn } from "react-hook-form";
 import { Input } from "@/components/ui/input";
-import { ProjectFormData } from "../../../../interfaces/projectSchema";
+import { ProjectFormData } from "@/interfaces/projectSchema";
 
 interface ProjectStepProps {
   form: UseFormReturn<ProjectFormData>;

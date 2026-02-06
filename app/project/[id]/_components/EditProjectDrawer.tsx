@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 
@@ -57,9 +57,9 @@ export default function EditProjectDrawer({ projectId }: EditProjectDrawerProps)
   const [initialLoading, setInitialLoading] = useState(false);
   const [alert, setAlert] = useState<AlertState>({ type: null, message: "", visible: false });
 
-  // useForm: input type (what the form accepts) vs output type (what Zod returns)
-  const form = useForm<ProjectFormInput, any, ProjectFormData>({
-    resolver: zodResolver(projectSchema),
+  // Use ProjectFormInput for the form type, cast the resolver to avoid type mismatch
+  const form = useForm<ProjectFormInput>({
+    resolver: zodResolver(projectSchema) as Resolver<ProjectFormInput>,
     mode: "onBlur",
     defaultValues: {
       name: "",
@@ -158,20 +158,20 @@ export default function EditProjectDrawer({ projectId }: EditProjectDrawerProps)
   const handleNext = async () => {
     if (step === 0) {
       // validate project fields before moving on
-      const projectFields = ["name", "desc", "implementation_date", "status"] as (keyof ProjectFormInput)[];
+      const projectFields = ["name", "desc", "implementation_date", "status"] as const;
       const isValid = await form.trigger(projectFields);
 
       const values = form.getValues();
       const implDate = values.implementation_date;
       const subDate = values.submission_date;
 
-      // runtime checks to ensure valid Dates (the input might be unknown/string/etc.)
+      // runtime checks to ensure valid Dates
       const isImplDateValid = implDate instanceof Date && !isNaN(implDate.getTime());
       const isSubDateValid = subDate instanceof Date && !isNaN(subDate.getTime());
 
       if (!isValid || !isImplDateValid || !isSubDateValid) {
         if (!isImplDateValid || !isSubDateValid) {
-          form.setError("implementation_date" as any, {
+          form.setError("implementation_date", {
             type: "manual",
             message: "Please select a valid date",
           });
@@ -183,12 +183,12 @@ export default function EditProjectDrawer({ projectId }: EditProjectDrawerProps)
     setStep(step + 1);
   };
 
-  // ---------- NEW submit flow: let RHF + Zod parse data and pass parsed output ----------
-  const onSubmit = async (data: ProjectFormData) => {
+  // Submit handler receives parsed data from Zod
+  const onSubmit = async (data: ProjectFormInput) => {
     try {
       setLoading(true);
-      // data here is the Zod-parsed output (dates are Date objects)
-      await updateFullProject(projectId, data);
+      // Cast to ProjectFormData since Zod will have parsed the dates
+      await updateFullProject(projectId, data as unknown as ProjectFormData);
 
       showAlert("success", "Project updated successfully!");
 
@@ -260,9 +260,9 @@ export default function EditProjectDrawer({ projectId }: EditProjectDrawerProps)
   };
 
   const stepComponents = [
-    <ProjectStep key="project" form={form} isEdit={true} />,
-    <ExpensesStep key="expenses" form={form} />,
-    <RevenueStep key="revenue" form={form} />,
+    <ProjectStep key="project" form={form as any} isEdit={true} />,
+    <ExpensesStep key="expenses" form={form as any} />,
+    <RevenueStep key="revenue" form={form as any} />,
   ];
 
   return (
