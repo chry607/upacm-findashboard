@@ -1,11 +1,11 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 
-import { projectSchema, ProjectFormData } from "@/interfaces/projectSchema";
+import { projectSchema, ProjectFormData, ProjectFormInput } from "@/interfaces/projectSchema";
 import { createFullProject } from "@/lib/db/create-project.server";
 
 import ExpensesStep from "@/app/project/_components/steps/ExpensesStep";
@@ -43,8 +43,9 @@ export default function CreateProjectDrawer({ trigger }: CreateProjectDrawerProp
   const [loading, setLoading] = useState(false);
   const [alert, setAlert] = useState<AlertState>({ type: null, message: "", visible: false });
 
-  const form = useForm<ProjectFormData>({
-    resolver: zodResolver(projectSchema),
+  // Use ProjectFormInput for the form type, cast the resolver to avoid type mismatch
+  const form = useForm<ProjectFormInput>({
+    resolver: zodResolver(projectSchema) as Resolver<ProjectFormInput>,
     mode: "onBlur",
     defaultValues: {
       name: "",
@@ -107,7 +108,7 @@ export default function CreateProjectDrawer({ trigger }: CreateProjectDrawerProp
 
   const handleNext = async () => {
     if (step === 0) {
-      const projectFields = ["name", "desc", "implementation_date", "status"] as (keyof ProjectFormData)[];
+      const projectFields = ["name", "desc", "implementation_date", "status"] as const;
       const isValid = await form.trigger(projectFields);
 
       const values = form.getValues();
@@ -134,19 +135,12 @@ export default function CreateProjectDrawer({ trigger }: CreateProjectDrawerProp
     setStep(step + 1);
   };
 
-  const handleSubmit = async () => {
-    const projectFields = ["name", "desc", "implementation_date", "status"] as (keyof ProjectFormData)[];
-    const isValid = await form.trigger(projectFields);
-    if (!isValid) {
-      showAlert("error", "Please fill in all required project fields.");
-      setStep(0);
-      return;
-    }
-
+  // Submit handler - use form.handleSubmit to get parsed data
+  const onSubmit = async (data: ProjectFormInput) => {
     try {
       setLoading(true);
-      const data = form.getValues();
-      const projectId = await createFullProject(data);
+      // Cast to ProjectFormData since Zod will have parsed the dates
+      const projectId = await createFullProject(data as unknown as ProjectFormData);
 
       showAlert("success", "Project created successfully!");
 
@@ -191,9 +185,9 @@ export default function CreateProjectDrawer({ trigger }: CreateProjectDrawerProp
   };
 
   const stepComponents = [
-    <ProjectStep key="project" form={form} isEdit={false} />,
-    <ExpensesStep key="expenses" form={form} />,
-    <RevenueStep key="revenue" form={form} />,
+    <ProjectStep key="project" form={form as any} isEdit={false} />,
+    <ExpensesStep key="expenses" form={form as any} />,
+    <RevenueStep key="revenue" form={form as any} />,
   ];
 
   const defaultTrigger = (
@@ -278,7 +272,12 @@ export default function CreateProjectDrawer({ trigger }: CreateProjectDrawerProp
                   Next
                 </Button>
               ) : (
-                <Button type="button" onClick={handleSubmit} disabled={loading}>
+                // IMPORTANT: use form.handleSubmit so resolver runs and returns parsed ProjectFormData
+                <Button
+                  type="button"
+                  onClick={form.handleSubmit(onSubmit)}
+                  disabled={loading}
+                >
                   {loading ? "Creating..." : "Create Project"}
                 </Button>
               )}
