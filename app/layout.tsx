@@ -48,7 +48,6 @@ export default function RootLayout({
             <NeonAuthUIProvider
               authClient={authClient}
               redirectTo="/"
-              emailOTP
               signUp={false}
               localization={{
                 SIGN_UP: "",

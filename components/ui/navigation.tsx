@@ -20,7 +20,7 @@ const navItems = [
 export default function SideNavigation() {
 	const pathname = usePathname();
 	const { data } = authClient.useSession();
-	const isAuthed = Boolean(data?.session);
+	const isAuthed = Boolean(data?.user);
 	const visibleItems = navItems.filter((item) => !item.requiresAuth || isAuthed);
 
 	return (

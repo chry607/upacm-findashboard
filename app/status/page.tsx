@@ -8,8 +8,11 @@ export const dynamic = "force-dynamic";
 
 export default async function Status() {
   const { data: session } = await auth.getSession();
+  const isAnonymous = Boolean(
+    session?.user && "isAnonymous" in session.user && session.user.isAnonymous
+  );
 
-  if (!session?.user) {
+  if (!session?.user || isAnonymous) {
     redirect("/auth/sign-in");
   }
 
