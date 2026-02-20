@@ -149,13 +149,13 @@ export default async function RevenuePage() {
               Year-over-Year Change
             </CardTitle>
             {isIncrease ? (
-              <TrendingUp className="h-4 w-4 text-green-500" />
+              <TrendingUp className="h-4 w-4 text-success" />
             ) : (
-              <TrendingDown className="h-4 w-4 text-red-500" />
+              <TrendingDown className="h-4 w-4 text-expense" />
             )}
           </CardHeader>
           <CardContent>
-            <div className={`text-2xl font-bold ${isIncrease ? "text-green-500" : "text-red-500"}`}>
+            <div className={`text-2xl font-bold ${isIncrease ? "text-success" : "text-expense"}`}>
               {isIncrease ? "+" : ""}{percentageIncrease.toFixed(1)}%
             </div>
             <p className="text-xs text-muted-foreground">

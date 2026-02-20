@@ -21,11 +21,11 @@ interface MonthlyLineChartProps {
 const chartConfig = {
   expenses: {
     label: "Expenses",
-    color: "hsl(0 84% 60%)", /* red */
+    color: "hsl(var(--chart-1))",
   },
   revenue: {
     label: "Revenue",
-    color: "hsl(142 76% 36%)", /* green */
+    color: "hsl(var(--chart-2))",
   },
 } satisfies ChartConfig;
 

@@ -217,14 +217,14 @@ export default function CreateProjectDrawer({ trigger }: CreateProjectDrawerProp
               variant={alert.type === "error" ? "destructive" : "default"}
               className={`shadow-lg [&>svg]:static [&>svg~*]:pl-0 grid-cols-[auto_1fr] items-start ${
                 alert.type === "success"
-                  ? "border-green-500 bg-green-50 dark:bg-green-950"
+                  ? "border-success bg-success/10"
                   : ""
               }`}
             >
               {alert.type === "error" ? (
                 <AlertCircle className="h-4 w-4" />
               ) : (
-                <CheckCircle2 className="h-4 w-4 text-green-600" />
+                <CheckCircle2 className="h-4 w-4 text-success" />
               )}
               <div>
                 <AlertTitle>

@@ -8,20 +8,13 @@ interface TicketHistoryProps {
   tickets: ProjectTicket[];
 }
 
-function getStatusVariant(status: string): "default" | "secondary" | "destructive" | "outline" {
-  const statusLower = status.toLowerCase();
-  switch (statusLower) {
-    case "approved":
-    case "completed":
-      return "default";
-    case "pending":
-      return "secondary";
-    case "rejected":
-      return "destructive";
-    default:
-      return "outline";
-  }
-}
+const statusColors: Record<string, string> = {
+  pending: "bg-[hsl(var(--warning))] text-black dark:text-black px-3 py-1 font-semibold",
+  approved: "bg-[hsl(var(--success))] text-white dark:text-white px-3 py-1 font-semibold",
+  rejected: "bg-[hsl(var(--expense))] text-white dark:text-white px-3 py-1 font-semibold",
+  completed: "bg-[hsl(var(--chart-3))] text-white dark:text-white px-3 py-1 font-semibold",
+  draft: "bg-muted text-foreground dark:text-foreground px-3 py-1 font-semibold",
+};
 
 export function TicketHistory({ tickets }: TicketHistoryProps) {
   const formatDate = (date: Date) => {
@@ -54,7 +47,7 @@ export function TicketHistory({ tickets }: TicketHistoryProps) {
                   {formatDate(ticket.submission_date)}
                 </p>
               </div>
-              <Badge variant={getStatusVariant(ticket.status)} className="text-xs">
+              <Badge className={`text-xs ${statusColors[ticket.status.toLowerCase()] || "bg-muted text-foreground px-3 py-1 font-semibold"}`}>
                 {ticket.status}
               </Badge>
             </div>

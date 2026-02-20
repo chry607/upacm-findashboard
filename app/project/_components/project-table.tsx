@@ -18,11 +18,11 @@ interface ProjectTableProps {
 }
 
 const statusColors: Record<string, string> = {
-  pending: "bg-yellow-500",
-  approved: "bg-green-500",
-  rejected: "bg-red-500",
-  completed: "bg-blue-500",
-  draft: "bg-gray-500",
+  pending: "bg-[hsl(var(--warning))] text-black dark:text-black px-3 py-1 font-semibold",
+  approved: "bg-[hsl(var(--success))] text-white dark:text-white px-3 py-1 font-semibold",
+  rejected: "bg-[hsl(var(--expense))] text-white dark:text-white px-3 py-1 font-semibold",
+  completed: "bg-[hsl(var(--chart-3))] text-white dark:text-white px-3 py-1 font-semibold",
+  draft: "bg-muted text-foreground dark:text-foreground px-3 py-1 font-semibold",
 };
 
 export function ProjectTable({ projects }: ProjectTableProps) {
@@ -75,20 +75,20 @@ export function ProjectTable({ projects }: ProjectTableProps) {
                     </div>
                   </TableCell>
                   <TableCell>
-                    <Badge className={statusColors[project.status.toLowerCase()] || "bg-gray-500"}>
+                    <Badge className={statusColors[project.status.toLowerCase()] || "bg-muted text-muted-foreground"}>
                       {project.status}
                     </Badge>
                   </TableCell>
                   <TableCell>
                     {format(new Date(project.implementation_date), "MMM d, yyyy")}
                   </TableCell>
-                  <TableCell className="text-right text-red-600">
+                  <TableCell className="text-right text-expense">
                     {formatCurrency(project.total_expenses)}
                   </TableCell>
-                  <TableCell className="text-right text-green-600">
+                  <TableCell className="text-right text-revenue">
                     {formatCurrency(project.total_revenue)}
                   </TableCell>
-                  <TableCell className={`text-right font-medium ${net >= 0 ? "text-green-600" : "text-red-600"}`}>
+                  <TableCell className={`text-right font-medium ${net >= 0 ? "text-revenue" : "text-expense"}`}>
                     {formatCurrency(net)}
                   </TableCell>
                 </TableRow>

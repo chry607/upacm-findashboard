@@ -38,7 +38,7 @@ interface RevenueLineChartProps {
 const chartConfig = {
   revenue: {
     label: "Revenue",
-    color: "black",
+    color: "hsl(var(--chart-2))",
   },
 } satisfies ChartConfig;
 

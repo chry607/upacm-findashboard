@@ -37,6 +37,14 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-expense: var(--expense);
+  --color-expense-foreground: var(--expense-foreground);
+  --color-revenue: var(--revenue);
+  --color-revenue-foreground: var(--revenue-foreground);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -66,11 +74,19 @@
   --border: oklch(0.922 0 0);
   --input: oklch(0.922 0 0);
   --ring: oklch(0.708 0 0);
-  --chart-1: 0 84% 60%; /* red for expenses */
-  --chart-2: 142 76% 36%; /* green for revenue */
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
+  --chart-1: 0 72% 51%; /* red for expenses */
+  --chart-2: 142 71% 45%; /* green for revenue */
+  --chart-3: 221 83% 53%; /* blue */
+  --chart-4: 45 93% 47%; /* yellow/orange */
+  --chart-5: 280 89% 60%; /* purple */
+  --success: 142 71% 45%;
+  --success-foreground: 0 0% 100%;
+  --warning: 45 93% 47%;
+  --warning-foreground: 0 0% 0%;
+  --expense: 0 72% 51%;
+  --expense-foreground: 0 0% 100%;
+  --revenue: 142 71% 45%;
+  --revenue-foreground: 0 0% 100%;
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
   --sidebar-primary: oklch(0.205 0 0);
@@ -100,11 +116,19 @@
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
   --ring: oklch(0.556 0 0);
-  --chart-1: 0 84% 60%; /* red for expenses */
-  --chart-2: 142 76% 36%; /* green for revenue */
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
+  --chart-1: 0 84% 65%; /* red for expenses - brighter for dark mode */
+  --chart-2: 142 71% 55%; /* green for revenue - brighter for dark mode */
+  --chart-3: 221 83% 63%; /* blue - brighter */
+  --chart-4: 45 93% 57%; /* yellow/orange - brighter */
+  --chart-5: 280 89% 70%; /* purple - brighter */
+  --success: 142 71% 55%;
+  --success-foreground: 0 0% 0%;
+  --warning: 45 93% 57%;
+  --warning-foreground: 0 0% 0%;
+  --expense: 0 84% 65%;
+  --expense-foreground: 0 0% 100%;
+  --revenue: 142 71% 55%;
+  --revenue-foreground: 0 0% 100%;
   --sidebar: oklch(0.205 0 0);
   --sidebar-foreground: oklch(0.985 0 0);
   --sidebar-primary: oklch(0.488 0.243 264.376);

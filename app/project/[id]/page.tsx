@@ -27,11 +27,11 @@ interface PageProps {
 }
 
 const statusColors: Record<string, string> = {
-  pending: "bg-yellow-500",
-  approved: "bg-green-500",
-  rejected: "bg-red-500",
-  completed: "bg-blue-500",
-  draft: "bg-gray-500",
+  pending: "bg-[hsl(var(--warning))] text-black dark:text-black px-3 py-1 font-semibold",
+  approved: "bg-[hsl(var(--success))] text-white dark:text-white px-3 py-1 font-semibold",
+  rejected: "bg-[hsl(var(--expense))] text-white dark:text-white px-3 py-1 font-semibold",
+  completed: "bg-[hsl(var(--chart-3))] text-white dark:text-white px-3 py-1 font-semibold",
+  draft: "bg-muted text-foreground dark:text-foreground px-3 py-1 font-semibold",
 };
 
 export default async function ProjectDetailPage({ params }: PageProps) {
@@ -68,7 +68,7 @@ export default async function ProjectDetailPage({ params }: PageProps) {
         <div className="flex-1">
           <div className="flex items-center gap-3">
             <h1 className="text-3xl font-bold tracking-tight">{project.name}</h1>
-            <Badge className={statusColors[project.status.toLowerCase()] || "bg-gray-500"}>
+            <Badge className={statusColors[project.status.toLowerCase()] || "bg-muted text-muted-foreground"}>
               {project.status}
             </Badge>
             <EditProjectDrawer projectId={id} />
@@ -96,10 +96,10 @@ export default async function ProjectDetailPage({ params }: PageProps) {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Expenses</CardTitle>
-            <TrendingDown className="h-4 w-4 text-red-500" />
+            <TrendingDown className="h-4 w-4 text-expense" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-red-600">
+            <div className="text-2xl font-bold text-expense">
               {formatCurrency(totalExpenses)}
             </div>
             <p className="text-xs text-muted-foreground">
@@ -111,10 +111,10 @@ export default async function ProjectDetailPage({ params }: PageProps) {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
-            <TrendingUp className="h-4 w-4 text-green-500" />
+            <TrendingUp className="h-4 w-4 text-revenue" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">
+            <div className="text-2xl font-bold text-revenue">
               {formatCurrency(totalRevenue)}
             </div>
             <p className="text-xs text-muted-foreground">
@@ -129,7 +129,7 @@ export default async function ProjectDetailPage({ params }: PageProps) {
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className={`text-2xl font-bold ${netIncome >= 0 ? "text-green-600" : "text-red-600"}`}>
+            <div className={`text-2xl font-bold ${netIncome >= 0 ? "text-revenue" : "text-expense"}`}>
               {formatCurrency(netIncome)}
             </div>
             <p className="text-xs text-muted-foreground">
@@ -162,7 +162,7 @@ export default async function ProjectDetailPage({ params }: PageProps) {
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Status</p>
-                <Badge className={statusColors[project.status.toLowerCase()] || "bg-gray-500"}>
+                <Badge className={statusColors[project.status.toLowerCase()] || "bg-muted text-muted-foreground"}>
                   {project.status}
                 </Badge>
               </div>
@@ -181,16 +181,16 @@ export default async function ProjectDetailPage({ params }: PageProps) {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <TrendingDown className="h-4 w-4 text-red-500" />
+                  <TrendingDown className="h-4 w-4 text-expense" />
                   <span className="text-sm font-medium">Expenses</span>
                 </div>
-                <span className="text-sm font-bold text-red-600">
+                <span className="text-sm font-bold text-expense">
                   {formatCurrency(totalExpenses)}
                 </span>
               </div>
               <div className="h-8 w-full bg-muted rounded-md overflow-hidden">
                 <div
-                  className="h-full bg-red-500 rounded-md transition-all duration-500 ease-out"
+                  className="h-full bg-expense rounded-md transition-all duration-500 ease-out"
                   style={{ width: `${expensePercentage}%` }}
                 />
               </div>
@@ -200,16 +200,16 @@ export default async function ProjectDetailPage({ params }: PageProps) {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <TrendingUp className="h-4 w-4 text-green-500" />
+                  <TrendingUp className="h-4 w-4 text-revenue" />
                   <span className="text-sm font-medium">Revenue</span>
                 </div>
-                <span className="text-sm font-bold text-green-600">
+                <span className="text-sm font-bold text-revenue">
                   {formatCurrency(totalRevenue)}
                 </span>
               </div>
               <div className="h-8 w-full bg-muted rounded-md overflow-hidden">
                 <div
-                  className="h-full bg-green-500 rounded-md transition-all duration-500 ease-out"
+                  className="h-full bg-revenue rounded-md transition-all duration-500 ease-out"
                   style={{ width: `${revenuePercentage}%` }}
                 />
               </div>
@@ -219,7 +219,7 @@ export default async function ProjectDetailPage({ params }: PageProps) {
             <div className="pt-4 border-t">
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium">Net Income</span>
-                <span className={`text-lg font-bold ${netIncome >= 0 ? "text-green-600" : "text-red-600"}`}>
+                <span className={`text-lg font-bold ${netIncome >= 0 ? "text-revenue" : "text-expense"}`}>
                   {formatCurrency(netIncome)}
                 </span>
               </div>

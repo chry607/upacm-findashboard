@@ -27,15 +27,18 @@ export interface ExpensesPieChartCarouselProps {
   academicYearLabel: string;
 }
 
-// Shades of black/gray from darkest to lightest
-const GRAY_SHADES = [
-  "hsl(0, 0%, 10%)",   // Almost black
-  "hsl(0, 0%, 25%)",   // Dark gray
-  "hsl(0, 0%, 40%)",   // Medium dark gray
-  "hsl(0, 0%, 55%)",   // Medium gray
-  "hsl(0, 0%, 70%)",   // Light gray
-  "hsl(0, 0%, 80%)",   // Lighter gray
-  "hsl(0, 0%, 88%)",   // Very light gray
+// Vibrant colors that work well in both light and dark modes
+const CHART_COLORS = [
+  "hsl(var(--chart-1))",   // Red
+  "hsl(var(--chart-2))",   // Green
+  "hsl(var(--chart-3))",   // Blue
+  "hsl(var(--chart-4))",   // Yellow/Orange
+  "hsl(var(--chart-5))",   // Purple
+  "hsl(0 84% 60%)",        // Additional red shade
+  "hsl(200 98% 39%)",      // Cyan
+  "hsl(330 80% 60%)",      // Pink
+  "hsl(160 84% 39%)",      // Teal
+  "hsl(25 95% 53%)",       // Orange
 ];
 
 function generateChartConfig(data: ProjectExpense[]): ChartConfig {
@@ -44,7 +47,7 @@ function generateChartConfig(data: ProjectExpense[]): ChartConfig {
     const key = item.project_name.toLowerCase().replace(/\s+/g, "_");
     config[key] = {
       label: item.project_name,
-      color: GRAY_SHADES[index % GRAY_SHADES.length],
+      color: CHART_COLORS[index % CHART_COLORS.length],
     };
   });
   return config;
@@ -54,7 +57,7 @@ function transformData(data: ProjectExpense[]) {
   return data.map((item, index) => ({
     name: item.project_name,
     value: Number(item.total_expenses),
-    fill: GRAY_SHADES[index % GRAY_SHADES.length],
+    fill: CHART_COLORS[index % CHART_COLORS.length],
   }));
 }
 

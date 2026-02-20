@@ -51,13 +51,13 @@ export function TopProjectsList({ projects }: TopProjectsListProps) {
                   <p className="font-medium truncate group-hover:underline">
                     {project.name}
                   </p>
-                  <p className="text-sm font-bold text-green-600 shrink-0 ml-2">
+                  <p className="text-sm font-bold text-revenue shrink-0 ml-2">
                     {formatCurrency(project.total_revenue)}
                   </p>
                 </div>
                 <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-green-500 rounded-full transition-all duration-500"
+                    className="h-full bg-revenue rounded-full transition-all duration-500"
                     style={{ width: `${percentage}%` }}
                   />
                 </div>

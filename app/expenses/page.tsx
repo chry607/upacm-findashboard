@@ -128,13 +128,13 @@ export default async function ExpensesPage() {
               Year-over-Year Change
             </CardTitle>
             {isIncrease ? (
-              <TrendingUp className="h-4 w-4 text-red-500" />
+              <TrendingUp className="h-4 w-4 text-expense" />
             ) : (
-              <TrendingDown className="h-4 w-4 text-green-500" />
+              <TrendingDown className="h-4 w-4 text-success" />
             )}
           </CardHeader>
           <CardContent>
-            <div className={`text-2xl font-bold ${isIncrease ? "text-red-500" : "text-green-500"}`}>
+            <div className={`text-2xl font-bold ${isIncrease ? "text-expense" : "text-success"}`}>
               {isIncrease ? "+" : ""}{previousExpenses.percentageIncrease}%
             </div>
             <p className="text-xs text-muted-foreground">

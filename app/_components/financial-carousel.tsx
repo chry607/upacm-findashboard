@@ -21,20 +21,20 @@ export function FinancialCarousel({
     {
       label: "Current Balance",
       value: balance,
-      color: balance >= 0 ? "text-green-600" : "text-red-600",
-      bgColor: balance >= 0 ? "bg-green-50" : "bg-red-50",
+      color: balance >= 0 ? "text-success" : "text-expense",
+      bgColor: balance >= 0 ? "bg-success/10" : "bg-expense/10",
     },
     {
       label: "Total Expenses",
       value: expenses,
-      color: "text-red-500",
-      bgColor: "bg-red-50",
+      color: "text-expense",
+      bgColor: "bg-expense/10",
     },
     {
       label: "Total Revenue",
       value: revenue,
-      color: "text-blue-500",
-      bgColor: "bg-blue-50",
+      color: "text-revenue",
+      bgColor: "bg-revenue/10",
     },
   ];
 

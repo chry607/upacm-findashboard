@@ -38,7 +38,7 @@ interface ExpensesLineChartProps {
 const chartConfig = {
   expenses: {
     label: "Expenses",
-    color: "black",
+    color: "hsl(var(--chart-1))",
   },
 } satisfies ChartConfig;
 

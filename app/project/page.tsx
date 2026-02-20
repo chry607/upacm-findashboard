@@ -69,7 +69,7 @@ async function ProjectsContent({ searchParams }: { searchParams: PageProps["sear
         <Card>
           <CardHeader className="pb-2">
             <CardDescription>Total Expenses</CardDescription>
-            <CardTitle className="text-2xl text-red-600">
+            <CardTitle className="text-2xl text-expense">
               {formatCurrency(totalExpenses)}
             </CardTitle>
           </CardHeader>
@@ -77,7 +77,7 @@ async function ProjectsContent({ searchParams }: { searchParams: PageProps["sear
         <Card>
           <CardHeader className="pb-2">
             <CardDescription>Total Revenue</CardDescription>
-            <CardTitle className="text-2xl text-green-600">
+            <CardTitle className="text-2xl text-revenue">
               {formatCurrency(totalRevenue)}
             </CardTitle>
           </CardHeader>
@@ -85,7 +85,7 @@ async function ProjectsContent({ searchParams }: { searchParams: PageProps["sear
         <Card>
           <CardHeader className="pb-2">
             <CardDescription>Net Total</CardDescription>
-            <CardTitle className={`text-2xl ${netTotal >= 0 ? "text-green-600" : "text-red-600"}`}>
+            <CardTitle className={`text-2xl ${netTotal >= 0 ? "text-revenue" : "text-expense"}`}>
               {formatCurrency(netTotal)}
             </CardTitle>
           </CardHeader>
