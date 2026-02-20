@@ -23,6 +23,7 @@ import { cn } from "@/lib/utils";
 
 interface ProjectFiltersProps {
   statuses: string[];
+  className?: string;
 }
 
 const SORT_OPTIONS = [
@@ -38,7 +39,7 @@ const SORT_OPTIONS = [
   { value: "net-asc", label: "Lowest Net Income" },
 ];
 
-export function ProjectFilters({ statuses }: ProjectFiltersProps) {
+export function ProjectFilters({ statuses, className }: ProjectFiltersProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
@@ -84,7 +85,7 @@ export function ProjectFilters({ statuses }: ProjectFiltersProps) {
   const hasActiveFilters = search || status !== "all" || startDate || endDate || currentSort !== "implementation_date-desc";
 
   return (
-    <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+    <div className={cn("flex flex-col gap-4 md:flex-row md:items-center md:justify-between", className)}>
       {/* Search Input - Left Side */}
       <div className="relative min-w-[200px] max-w-sm">
         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />

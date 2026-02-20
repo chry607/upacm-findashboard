@@ -114,11 +114,3 @@ export async function getProjectDetails(projectId: string): Promise<ProjectDetai
     netIncome,
   };
 }
-
-export async function updateProjectStatus(projectId: string, status: string): Promise<void> {
-  await sql`
-    UPDATE finance.projects
-    SET status = ${status}
-    WHERE id = ${projectId}
-  `;
-}

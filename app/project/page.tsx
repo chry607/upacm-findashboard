@@ -1,10 +1,9 @@
 import { Suspense } from "react";
-import Link from "next/link";
 import { getProjects, getProjectStatuses } from "@/lib/db/projects.server";
 import { ProjectTable } from "@/app/project/_components/project-table";
 import { ProjectFilters } from "@/app/project/_components/project-filters";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Plus } from "lucide-react";
 import CreateProjectDrawer from "@/app/project/_components/CreateProjectDrawer";
@@ -92,8 +91,17 @@ async function ProjectsContent({ searchParams }: { searchParams: PageProps["sear
         </Card>
       </div>
 
-      {/* Filters */}
-      <ProjectFilters statuses={statuses} />
+      {/* Filters + Action */}
+      <div className="flex flex-row flex-wrap items-start gap-4 justify-between">
+        <ProjectFilters statuses={statuses} className="flex-1 min-w-[320px]" />
+        <CreateProjectDrawer
+          trigger={
+            <Button variant="ghost" size="sm" className="self-start">
+              Create Project <Plus className="h-4 w-4" />
+            </Button>
+          }
+        />
+      </div>
 
       {/* Table */}
       <ProjectTable projects={projects} />
@@ -106,14 +114,6 @@ export default async function ProjectPage({ searchParams }: PageProps) {
     <div className="container mx-auto py-8 space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold tracking-tight">Projects</h1>
-        {/* Create Project Button with Drawer Trigger */}
-        <CreateProjectDrawer 
-          trigger={
-            <Button variant="ghost" size="sm">
-              Create Project <Plus className="h-4 w-4" />
-            </Button>
-          }
-        />
       </div>
 
       {/* Content with Suspense */}
