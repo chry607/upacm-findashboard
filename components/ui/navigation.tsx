@@ -14,7 +14,7 @@ const navItems = [
 	{ href: "/expenses", label: "Expenses", icon: Receipt },
 	{ href: "/revenue", label: "Revenue", icon: DollarSign },
 	{ href: "/project", label: "Projects", icon: FolderKanban },
-	{ href: "/status", label: "Statuses", icon: Info, requiresAuth: true },
+	{ href: "/status", label: "Status", icon: Info, requiresAuth: true },
 ];
 
 export default function SideNavigation() {
