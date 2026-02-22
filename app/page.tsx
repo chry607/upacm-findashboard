@@ -16,6 +16,9 @@ import { FinancialCards } from "./_components/financial-cards";
 import { MonthlyLineChart } from "./_components/monthly-line-chart";
 import { TicketHistory } from "./_components/ticket-history";
 
+// Revalidate data every 60 seconds on Vercel
+export const revalidate = 60;
+
 function getAcademicYearLabel(): string {
   const now = new Date();
   const currentMonth = now.getMonth();

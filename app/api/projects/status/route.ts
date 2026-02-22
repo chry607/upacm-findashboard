@@ -1,5 +1,6 @@
 import { auth } from "@/lib/auth/server";
 import { batchUpdateProjectStatus } from "@/lib/db/change-projectStatus.server";
+import { revalidatePath } from "next/cache";
 
 interface StatusUpdate {
   projectId: string;
@@ -22,6 +23,11 @@ export async function POST(request: Request) {
     }
 
     await batchUpdateProjectStatus(updates);
+
+    // Revalidate affected pages on Vercel
+    revalidatePath("/status");
+    revalidatePath("/project");
+    revalidatePath("/");
 
     return Response.json({ updated: updates.length });
   } catch (error) {

@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { neon } from "@neondatabase/serverless";
 
 const sql = neon(process.env.DATABASE_URL!);
@@ -23,6 +24,12 @@ export async function deleteProject(projectId: string) {
   );
 
   await sql.transaction(queries);
+
+  // Revalidate affected pages on Vercel
+  revalidatePath(\"/project\");
+  revalidatePath(\"/\");
+  revalidatePath(\"/expenses\");
+  revalidatePath(\"/revenue\");
 
   return { success: true };
 }

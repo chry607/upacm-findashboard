@@ -1,6 +1,9 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getProjectDetails } from "@/lib/db/view-project.server";
+
+// Revalidate data every 60 seconds on Vercel
+export const revalidate = 60;
 import {
   Card,
   CardContent,

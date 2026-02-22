@@ -8,6 +8,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Plus } from "lucide-react";
 import CreateProjectDrawer from "@/app/project/_components/CreateProjectDrawer";
 
+// Revalidate data every 60 seconds on Vercel
+export const revalidate = 60;
+
 interface PageProps {
   searchParams: Promise<{
     search?: string;
