@@ -22,8 +22,9 @@ import { RevenueLineChart } from "./_components/revenue-line-chart";
 import { RevenuePieChartCarousel } from "./_components/revenue-pie-chart-carousel";
 import { TopProjectsList } from "./_components/top-projects-list";
 
-// Revalidate data every 60 seconds on Vercel
-export const revalidate = 60;
+// Always fetch fresh data in production.
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 const formatCurrency = (amount: number) => {
   return new Intl.NumberFormat("en-PH", {

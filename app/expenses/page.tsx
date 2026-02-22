@@ -25,8 +25,9 @@ import { TopProjectsList } from "./_components/top-projects-list";
 import type { MonthlyExpense } from "./_components/expenses-line-chart";
 import type { ProjectExpense } from "./_components/expenses-pie-chart-carousel";
 
-// Revalidate data every 60 seconds on Vercel
-export const revalidate = 60;
+// Always fetch fresh data in production.
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export default async function ExpensesPage() {
   const { startYear, endYear } = await getCurrentAcademicYear();
