@@ -61,8 +61,10 @@ export async function getTotalRevenueAcademicYear(startYear: number) {
   const result = await sql`
     SELECT COALESCE(SUM(r.amount), 0) AS total_revenue
     FROM finance.revenue r
+    JOIN finance.projects p ON r.project_id = p.id
     WHERE r.date >= ${startDate}
       AND r.date <= ${endDate}
+      AND p.status = 'completed'
   `;
 
   return result[0]?.total_revenue ?? 0;
@@ -75,8 +77,10 @@ export async function getTotalRevenueCurrentSemester() {
   const result = await sql`
     SELECT COALESCE(SUM(r.amount), 0) AS total_revenue
     FROM finance.revenue r
+    JOIN finance.projects p ON r.project_id = p.id
     WHERE r.date >= ${startDate}
       AND r.date <= ${endDate}
+      AND p.status = 'completed'
   `;
 
   return result[0]?.total_revenue ?? 0;
@@ -101,8 +105,10 @@ export async function getTotalRevenueLastSemester() {
   const result = await sql`
     SELECT COALESCE(SUM(r.amount), 0) AS total_revenue
     FROM finance.revenue r
+    JOIN finance.projects p ON r.project_id = p.id
     WHERE r.date >= ${startDate}
       AND r.date <= ${endDate}
+      AND p.status = 'completed'
   `;
 
   return result[0]?.total_revenue ?? 0;
@@ -117,8 +123,10 @@ export async function getTotalRevenueByMonthAcademicYear(startYear: number) {
       EXTRACT(YEAR FROM r.date) AS year,
       COALESCE(SUM(r.amount), 0) AS total_revenue
     FROM finance.revenue r
+    JOIN finance.projects p ON r.project_id = p.id
     WHERE r.date >= ${startDate}
       AND r.date <= ${endDate}
+      AND p.status = 'completed'
     GROUP BY EXTRACT(YEAR FROM r.date), EXTRACT(MONTH FROM r.date)
     ORDER BY year, month
   `;
@@ -137,6 +145,7 @@ export async function getRevenueBreakdownByProjectAcademicYear(startYear: number
     LEFT JOIN finance.revenue r ON p.id = r.project_id
     WHERE r.date >= ${startDate}
       AND r.date <= ${endDate}
+      AND p.status = 'completed'
     GROUP BY p.id, p.name
     HAVING COALESCE(SUM(r.amount), 0) > 0
     ORDER BY total_revenue DESC
@@ -157,6 +166,7 @@ export async function getRevenueBreakdownByCurrentSemester() {
     LEFT JOIN finance.revenue r ON p.id = r.project_id
     WHERE r.date >= ${startDate}
       AND r.date <= ${endDate}
+      AND p.status = 'completed'
     GROUP BY p.id, p.name
     HAVING COALESCE(SUM(r.amount), 0) > 0
     ORDER BY total_revenue DESC
@@ -189,6 +199,7 @@ export async function getRevenueBreakdownByLastSemester() {
     LEFT JOIN finance.revenue r ON p.id = r.project_id
     WHERE r.date >= ${startDate}
       AND r.date <= ${endDate}
+      AND p.status = 'completed'
     GROUP BY p.id, p.name
     HAVING COALESCE(SUM(r.amount), 0) > 0
     ORDER BY total_revenue DESC
@@ -204,6 +215,7 @@ export async function top5ProjectsByRevenueAcademicYear(startYear: number) {
     LEFT JOIN finance.revenue r ON p.id = r.project_id
     WHERE r.date >= ${`${startYear}-08-01`}
       AND r.date < ${`${startYear + 1}-08-01`}
+      AND p.status = 'completed'
     GROUP BY p.id, p.name
     ORDER BY total_revenue DESC
     LIMIT 5
@@ -274,14 +286,17 @@ export async function getPreviousRevenue() {
     JOIN finance.projects p ON e.project_id = p.id
     WHERE p.implementation_date >= ${prevStartDate}
       AND p.implementation_date <= ${prevEndDate}
+      AND p.status = 'completed'
   `;
   const totalExpenses = Number(expensesResult[0]?.total_expenses ?? 0);
   
   const revenueResult = await sql`
-    SELECT COALESCE(SUM(amount), 0) AS total_revenue
-    FROM finance.revenue
-    WHERE date >= ${prevStartDate}
-      AND date <= ${prevEndDate}
+    SELECT COALESCE(SUM(r.amount), 0) AS total_revenue
+    FROM finance.revenue r
+    JOIN finance.projects p ON r.project_id = p.id
+    WHERE r.date >= ${prevStartDate}
+      AND r.date <= ${prevEndDate}
+      AND p.status = 'completed'
   `;
   const totalRevenue = Number(revenueResult[0]?.total_revenue ?? 0);
   
@@ -313,8 +328,10 @@ export async function getRevenueByPaymentMode(startYear: number) {
       r.mode_of_payment,
       COALESCE(SUM(r.amount), 0) AS total_revenue
     FROM finance.revenue r
+    JOIN finance.projects p ON r.project_id = p.id
     WHERE r.date >= ${startDate}
       AND r.date <= ${endDate}
+      AND p.status = 'completed'
     GROUP BY r.mode_of_payment
     ORDER BY total_revenue DESC
   `;

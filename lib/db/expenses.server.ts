@@ -99,6 +99,7 @@ export async function getCurrentSemesterExpenses() {
     LEFT JOIN finance.expenses e ON p.id = e.project_id
     WHERE p.implementation_date >= ${startDate}
       AND p.implementation_date <= ${endDate}
+      AND p.status = 'completed'
     GROUP BY p.id, p.name
     ORDER BY total_expenses DESC
   `;
@@ -133,6 +134,7 @@ export async function getLastSemesterExpenses() {
     LEFT JOIN finance.expenses e ON p.id = e.project_id
     WHERE p.implementation_date >= ${startDate}
       AND p.implementation_date <= ${endDate}
+      AND p.status = 'completed'
     GROUP BY p.id, p.name
     ORDER BY total_expenses DESC
   `;
@@ -147,6 +149,7 @@ export async function top5ProjectsByExpenses() {
       COALESCE(SUM(e.unit_price * e.quantity), 0) AS total_expenses
     FROM finance.projects p
     LEFT JOIN finance.expenses e ON p.id = e.project_id
+    WHERE p.status = 'completed'
     GROUP BY p.id, p.name
     ORDER BY total_expenses DESC
     LIMIT 5
@@ -164,6 +167,7 @@ export async function getAllExpensesInAPeriod(startDate: Date, endDate: Date) {
     LEFT JOIN finance.expenses e ON p.id = e.project_id
     WHERE p.implementation_date >= ${startDate}
       AND p.implementation_date <= ${endDate}
+      AND p.status = 'completed'
     GROUP BY p.id, p.name
     ORDER BY total_expenses DESC
   `;
@@ -180,6 +184,7 @@ export async function getTotalExpensesByMonth(year: number) {
     FROM finance.projects p
     LEFT JOIN finance.expenses e ON p.id = e.project_id
     WHERE EXTRACT(YEAR FROM p.implementation_date) = ${year}
+      AND p.status = 'completed'
     GROUP BY EXTRACT(MONTH FROM p.implementation_date)
     ORDER BY month
   `;
@@ -221,6 +226,7 @@ export async function getTotalExpensesThisYear() {
     FROM finance.expenses e
     JOIN finance.projects p ON e.project_id = p.id
     WHERE EXTRACT(YEAR FROM p.implementation_date) = ${year}
+      AND p.status = 'completed'
   `;
 
   return result[0]?.total_expenses ?? 0;
@@ -236,6 +242,7 @@ export async function getTotalExpensesCurrentSemester() {
     JOIN finance.projects p ON e.project_id = p.id
     WHERE p.implementation_date >= ${startDate}
       AND p.implementation_date <= ${endDate}
+      AND p.status = 'completed'
   `;
 
   return result[0]?.total_expenses ?? 0;
@@ -263,6 +270,7 @@ export async function getTotalExpensesLastSemester() {
     JOIN finance.projects p ON e.project_id = p.id
     WHERE p.implementation_date >= ${startDate}
       AND p.implementation_date <= ${endDate}
+      AND p.status = 'completed'
   `;
 
   return result[0]?.total_expenses ?? 0;
@@ -276,6 +284,7 @@ export async function getExpensesBreakdownByProject(year: number) {
     FROM finance.projects p
     LEFT JOIN finance.expenses e ON p.id = e.project_id
     WHERE EXTRACT(YEAR FROM p.implementation_date) = ${year}
+      AND p.status = 'completed'
     GROUP BY p.id, p.name
     ORDER BY total_expenses DESC
   `;
@@ -295,6 +304,7 @@ export async function getTotalExpensesByMonthAcademicYear(startYear: number) {
     LEFT JOIN finance.expenses e ON p.id = e.project_id
     WHERE p.implementation_date >= ${startDate}
       AND p.implementation_date <= ${endDate}
+      AND p.status = 'completed'
     GROUP BY EXTRACT(YEAR FROM p.implementation_date), EXTRACT(MONTH FROM p.implementation_date)
     ORDER BY year, month
   `;
@@ -311,6 +321,7 @@ export async function getTotalExpensesAcademicYear(startYear: number) {
     JOIN finance.projects p ON e.project_id = p.id
     WHERE p.implementation_date >= ${startDate}
       AND p.implementation_date <= ${endDate}
+      AND p.status = 'completed'
   `;
 
   return result[0]?.total_expenses ?? 0;
@@ -327,6 +338,7 @@ export async function getExpensesBreakdownByProjectAcademicYear(startYear: numbe
     LEFT JOIN finance.expenses e ON p.id = e.project_id
     WHERE p.implementation_date >= ${startDate}
       AND p.implementation_date <= ${endDate}
+      AND p.status = 'completed'
     GROUP BY p.id, p.name
     HAVING COALESCE(SUM(e.unit_price * e.quantity), 0) > 0
     ORDER BY total_expenses DESC
@@ -342,6 +354,7 @@ export async function top5ProjectsByExpensesAcademicYear(startYear: number) {
     LEFT JOIN finance.expenses e ON p.id = e.project_id
     WHERE p.implementation_date >= ${`${startYear}-08-01`}
       AND p.implementation_date < ${`${startYear + 1}-08-01`}
+      AND p.status = 'completed'
     GROUP BY p.id, p.name
     ORDER BY total_expenses DESC
     LIMIT 5
@@ -366,6 +379,7 @@ export async function getExpensesBreakdownByCurrentSemester() {
     LEFT JOIN finance.expenses e ON p.id = e.project_id
     WHERE p.implementation_date >= ${startDate}
       AND p.implementation_date <= ${endDate}
+      AND p.status = 'completed'
     GROUP BY p.id, p.name
     HAVING COALESCE(SUM(e.unit_price * e.quantity), 0) > 0
     ORDER BY total_expenses DESC
@@ -398,6 +412,7 @@ export async function getExpensesBreakdownByLastSemester() {
     LEFT JOIN finance.expenses e ON p.id = e.project_id
     WHERE p.implementation_date >= ${startDate}
       AND p.implementation_date <= ${endDate}
+      AND p.status = 'completed'
     GROUP BY p.id, p.name
     HAVING COALESCE(SUM(e.unit_price * e.quantity), 0) > 0
     ORDER BY total_expenses DESC
@@ -472,6 +487,7 @@ export async function getPreviousExpenses() {
     JOIN finance.projects p ON e.project_id = p.id
     WHERE p.implementation_date >= ${prevStartDate}
       AND p.implementation_date <= ${prevEndDate}
+      AND p.status = 'completed'
   `;
   const totalExpenses = Number(expensesResult[0]?.total_expenses ?? 0);
   

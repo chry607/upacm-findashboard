@@ -3,6 +3,7 @@
 import { type ProjectTicket } from "@/lib/db/view-general.server";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import Link from "next/link";
 
 interface TicketHistoryProps {
   tickets: ProjectTicket[];
@@ -17,11 +18,20 @@ const statusColors: Record<string, string> = {
 };
 
 export function TicketHistory({ tickets }: TicketHistoryProps) {
-  const formatDate = (date: Date) => {
-    return new Intl.DateTimeFormat("en-PH", {
-      month: "short",
-      day: "numeric",
-    }).format(new Date(date));
+  const formatDate = (date: Date | null | undefined) => {
+    if (!date) return "N/A";
+    
+    try {
+      const dateObj = new Date(date);
+      if (isNaN(dateObj.getTime())) return "N/A";
+      
+      return new Intl.DateTimeFormat("en-PH", {
+        month: "short",
+        year: "2-digit",
+      }).format(dateObj);
+    } catch {
+      return "N/A";
+    }
   };
 
   if (tickets.length === 0) {
@@ -37,20 +47,21 @@ export function TicketHistory({ tickets }: TicketHistoryProps) {
       <ScrollArea className="h-[140px] h-full">
         <div className="space-y-2 pr-4">
           {tickets.slice(0, 5).map((ticket) => (
-            <div
+            <Link
               key={ticket.id}
-              className="flex items-center justify-between py-1.5 border-b last:border-0"
+              href={`/project/${ticket.id}`}
+              className="flex items-center justify-between py-1.5 border-b last:border-0 hover:bg-muted/50 transition-colors rounded px-2 -mx-2"
             >
               <div className="flex-1 min-w-0 mr-2">
                 <p className="text-sm font-medium truncate">{ticket.name}</p>
                 <p className="text-xs text-muted-foreground">
-                  {formatDate(ticket.submission_date)}
+                  {formatDate(ticket.implementation_date)}
                 </p>
               </div>
               <Badge className={`text-xs ${statusColors[ticket.status.toLowerCase()] || "bg-muted text-foreground px-3 py-1 font-semibold"}`}>
                 {ticket.status}
               </Badge>
-            </div>
+            </Link>
           ))}
         </div>
       </ScrollArea>

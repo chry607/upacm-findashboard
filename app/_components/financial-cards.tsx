@@ -2,6 +2,7 @@
 
 import { Card, CardContent } from "@/components/ui/card";
 import { TrendingUp, TrendingDown, Wallet, PiggyBank } from "lucide-react";
+import Link from "next/link";
 
 interface FinancialCardsProps {
   balance: number;
@@ -32,6 +33,7 @@ export function FinancialCards({
       color: balance >= 0 ? "text-success" : "text-expense",
       bgColor: balance >= 0 ? "bg-success/10" : "bg-expense/10",
       iconColor: balance >= 0 ? "text-success" : "text-expense",
+      href: null,
     },
     {
       label: "Starting Balance",
@@ -40,6 +42,7 @@ export function FinancialCards({
       color: startingBalance >= 0 ? "text-success" : "text-expense",
       bgColor: startingBalance >= 0 ? "bg-success/10" : "bg-expense/10",
       iconColor: startingBalance >= 0 ? "text-success" : "text-expense",
+      href: null,
     },
     {
       label: "Total Revenue",
@@ -48,6 +51,7 @@ export function FinancialCards({
       color: "text-revenue",
       bgColor: "bg-revenue/10",
       iconColor: "text-revenue",
+      href: "/revenue",
     },
     {
       label: "Total Expenses",
@@ -56,13 +60,14 @@ export function FinancialCards({
       color: "text-expense",
       bgColor: "bg-expense/10",
       iconColor: "text-expense",
+      href: "/expenses",
     },
   ];
 
   return (
     <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-      {items.map((item, idx) => (
-        <Card key={idx} className={item.bgColor}>
+      {items.map((item, idx) => {
+        const content = (
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
@@ -74,8 +79,24 @@ export function FinancialCards({
               <item.icon className={`h-8 w-8 ${item.iconColor}`} />
             </div>
           </CardContent>
-        </Card>
-      ))}
+        );
+
+        if (item.href) {
+          return (
+            <Link key={idx} href={item.href}>
+              <Card className={`${item.bgColor} cursor-pointer hover:opacity-80 transition-opacity`}>
+                {content}
+              </Card>
+            </Link>
+          );
+        }
+
+        return (
+          <Card key={idx} className={item.bgColor}>
+            {content}
+          </Card>
+        );
+      })}
     </div>
   );
 }

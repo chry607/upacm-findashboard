@@ -20,7 +20,7 @@ export interface ProjectTicket {
   id: string;
   name: string;
   status: string;
-  submission_date: Date;
+  implementation_date: Date | null;
 }
 
 // Get current academic year (Aug to July)
@@ -79,6 +79,7 @@ export async function getFinancialSummary(): Promise<FinancialSummary> {
     FROM finance.expenses e
     JOIN finance.projects p ON e.project_id = p.id
     WHERE p.implementation_date >= ${start} AND p.implementation_date <= ${end}
+      AND p.status = 'completed'
   `;
 
   const revenueResult = await sql`
@@ -86,6 +87,7 @@ export async function getFinancialSummary(): Promise<FinancialSummary> {
     FROM finance.revenue r
     JOIN finance.projects p ON r.project_id = p.id
     WHERE r.date >= ${start} AND r.date <= ${end}
+      AND p.status = 'completed'
   `;
 
   const totalExpenses = Number(expensesResult[0]?.total ?? 0);
@@ -111,6 +113,7 @@ export async function getMonthlyData(): Promise<MonthlyData[]> {
     FROM finance.expenses e
     JOIN finance.projects p ON e.project_id = p.id
     WHERE p.implementation_date >= ${start} AND p.implementation_date <= ${end}
+      AND p.status = 'completed'
     GROUP BY TO_CHAR(p.implementation_date, 'Mon'), EXTRACT(MONTH FROM p.implementation_date)
   `;
 
@@ -123,6 +126,7 @@ export async function getMonthlyData(): Promise<MonthlyData[]> {
     FROM finance.revenue r
     JOIN finance.projects p ON r.project_id = p.id
     WHERE r.date >= ${start} AND r.date <= ${end}
+      AND p.status = 'completed'
     GROUP BY TO_CHAR(r.date, 'Mon'), EXTRACT(MONTH FROM r.date)
   `;
 
@@ -164,10 +168,10 @@ export async function getProjectTickets(): Promise<ProjectTicket[]> {
   const { start, end } = getAcademicYearRange();
 
   const result = await sql`
-    SELECT id, name, status, submission_date
+    SELECT id, name, status, implementation_date
     FROM finance.projects
-    WHERE submission_date >= ${start} AND submission_date <= ${end}
-    ORDER BY submission_date DESC
+    WHERE implementation_date >= ${start} AND implementation_date <= ${end}
+    ORDER BY implementation_date DESC
     LIMIT 10
   `;
 
@@ -175,7 +179,9 @@ export async function getProjectTickets(): Promise<ProjectTicket[]> {
     id: row.id as string,
     name: row.name as string,
     status: row.status as string,
-    submission_date: new Date(row.submission_date as string),
+    implementation_date: row.implementation_date
+      ? new Date(row.implementation_date as string)
+      : null,
   }));
 }
 
@@ -243,6 +249,7 @@ export async function getStartingMoney(acadYear?: string): Promise<number> {
       FROM finance.expenses e
       JOIN finance.projects p ON e.project_id = p.id
       WHERE p.implementation_date >= ${start} AND p.implementation_date <= ${end}
+        AND p.status = 'completed'
     `;
 
     const revenueResult = await sql`
@@ -250,6 +257,7 @@ export async function getStartingMoney(acadYear?: string): Promise<number> {
       FROM finance.revenue r
       JOIN finance.projects p ON r.project_id = p.id
       WHERE r.date >= ${start} AND r.date <= ${end}
+        AND p.status = 'completed'
     `;
 
     const totalExpenses = Number(expensesResult[0]?.total ?? 0);

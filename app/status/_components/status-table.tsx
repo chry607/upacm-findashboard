@@ -17,7 +17,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { batchUpdateProjectStatus } from "@/lib/db/change-projectStatus.server";
 import { AlertCircle, CheckCircle2, Loader2 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
@@ -63,14 +62,27 @@ export function StatusTable({ initialProjects }: StatusTableProps) {
           .filter((project) => changedProjects.has(project.id))
           .map((project) => ({ projectId: project.id, status: project.status }));
 
-        await batchUpdateProjectStatus(updates);
+        const response = await fetch("/api/projects/status", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ updates }),
+        });
+
+        if (!response.ok) {
+          const payload = (await response.json().catch(() => null)) as
+            | { error?: string }
+            | null;
+          const message = payload?.error ?? "Failed to save changes. Please try again.";
+          throw new Error(message);
+        }
         
         setChangedProjects(new Set());
         setSaveMessage({ type: "success", message: `Successfully updated ${updates.length} project(s)` });
         
         setTimeout(() => setSaveMessage(null), 5000);
-      } catch {
-        setSaveMessage({ type: "error", message: "Failed to save changes. Please try again." });
+      } catch (error) {
+        const message = error instanceof Error ? error.message : "Failed to save changes. Please try again.";
+        setSaveMessage({ type: "error", message });
       }
     });
   };
