@@ -1,8 +1,8 @@
 import {
   getFinancialSummary,
+  getStartingMoney,
   getMonthlyData,
   getProjectTickets,
-  getSemesterProgress,
 } from "@/lib/db/view-general.server";
 import {
   Card,
@@ -11,9 +11,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Clock, TrendingUp, Ticket } from "lucide-react";
+import { TrendingUp, Ticket } from "lucide-react";
 import { FinancialCards } from "./_components/financial-cards";
-import { SemesterProgress } from "./_components/semester-progress";
 import { MonthlyLineChart } from "./_components/monthly-line-chart";
 import { TicketHistory } from "./_components/ticket-history";
 
@@ -30,12 +29,12 @@ function getAcademicYearLabel(): string {
 }
 
 export default async function HomePage() {
-  const [financialSummary, monthlyData, tickets, semesterProgress] =
+  const [financialSummary, monthlyData, tickets, startingMoney] =
     await Promise.all([
       getFinancialSummary(),
       getMonthlyData(),
       getProjectTickets(),
-      getSemesterProgress(),
+      getStartingMoney(),
     ]);
 
   const academicYearLabel = getAcademicYearLabel();
@@ -51,29 +50,13 @@ export default async function HomePage() {
         </p>
       </div>
 
-      {/* Row 1: Financial Cards + Semester Progress */}
-      <div className="grid gap-4 grid-cols-1 lg:grid-cols-5">
-        <div className="lg:col-span-4">
-          <FinancialCards
-            balance={financialSummary.currentBalance}
-            expenses={financialSummary.totalExpenses}
-            revenue={financialSummary.totalRevenue}
-          />
-        </div>
-
-        <Card className="lg:col-span-1">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Semester Progress</CardTitle>
-            <Clock className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <SemesterProgress
-              daysLeft={semesterProgress.daysLeft}
-              percentage={semesterProgress.percentage}
-            />
-          </CardContent>
-        </Card>
-      </div>
+      {/* Row 1: Financial Cards */}
+      <FinancialCards
+        balance={financialSummary.currentBalance}
+        startingBalance={startingMoney}
+        expenses={financialSummary.totalExpenses}
+        revenue={financialSummary.totalRevenue}
+      />
 
       {/* Row 2: Line Chart + Recent Projects */}
       <div className="grid gap-4 grid-cols-1 lg:grid-cols-3">

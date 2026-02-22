@@ -43,6 +43,34 @@ function getAcademicYearRange(): { start: Date; end: Date } {
   };
 }
 
+function getAcademicYearKeyFromDate(date: Date): string {
+  const year = date.getFullYear();
+  const month = date.getMonth();
+  const startYear = month >= 7 ? year : year - 1;
+  return `${startYear}${startYear + 1}`;
+}
+
+function getPreviousAcademicYearKey(acadYearKey: string): string {
+  const match = acadYearKey.match(/^(\d{4})(\d{4})$/);
+  if (!match) {
+    return acadYearKey;
+  }
+
+  const startYear = Number(match[1]) - 1;
+  const endYear = Number(match[2]) - 1;
+  return `${startYear}${endYear}`;
+}
+
+function getAcademicYearRangeFromStartYear(startYear: number): {
+  start: Date;
+  end: Date;
+} {
+  return {
+    start: new Date(startYear, 7, 1),
+    end: new Date(startYear + 1, 6, 31),
+  };
+}
+
 export async function getFinancialSummary(): Promise<FinancialSummary> {
   const { start, end } = getAcademicYearRange();
 
@@ -62,11 +90,12 @@ export async function getFinancialSummary(): Promise<FinancialSummary> {
 
   const totalExpenses = Number(expensesResult[0]?.total ?? 0);
   const totalRevenue = Number(revenueResult[0]?.total ?? 0);
+  const startingMoney = await getStartingMoney();
 
   return {
     totalExpenses,
     totalRevenue,
-    currentBalance: totalRevenue - totalExpenses,
+    currentBalance: totalRevenue - totalExpenses + startingMoney,
   };
 }
 
@@ -176,4 +205,81 @@ export async function getSemesterProgress(): Promise<{
     totalDays: semesterLength,
     percentage: Math.round(percentage),
   };
+}
+
+function normalizeAcademicYear(acadYear: string): string {
+  const trimmed = acadYear.trim();
+
+  const dashedMatch = trimmed.match(/^(\d{4})-(\d{4})$/);
+  if (dashedMatch) {
+    return `${dashedMatch[1]}${dashedMatch[2]}`;
+  }
+
+  return trimmed;
+}
+
+export async function getStartingMoney(acadYear?: string): Promise<number> {
+  const baseYear = acadYear
+    ? normalizeAcademicYear(acadYear)
+    : getAcademicYearKeyFromDate(new Date());
+  const normalizedYear = getPreviousAcademicYearKey(baseYear);
+  const record = await sql`
+    SELECT id, starting_date, ending_date, starting_money, total_revenue, total_expenses
+    FROM finance.annual_record
+    WHERE id = ${normalizedYear}
+  `;
+
+  if (record.length === 0) {
+    const yearMatch = normalizedYear.match(/^(\d{4})(\d{4})$/);
+    if (!yearMatch) {
+      return 0;
+    }
+
+    const startYear = Number(yearMatch[1]);
+    const { start, end } = getAcademicYearRangeFromStartYear(startYear);
+
+    const expensesResult = await sql`
+      SELECT COALESCE(SUM(e.unit_price * e.quantity), 0) as total
+      FROM finance.expenses e
+      JOIN finance.projects p ON e.project_id = p.id
+      WHERE p.implementation_date >= ${start} AND p.implementation_date <= ${end}
+    `;
+
+    const revenueResult = await sql`
+      SELECT COALESCE(SUM(r.amount), 0) as total
+      FROM finance.revenue r
+      JOIN finance.projects p ON r.project_id = p.id
+      WHERE r.date >= ${start} AND r.date <= ${end}
+    `;
+
+    const totalExpenses = Number(expensesResult[0]?.total ?? 0);
+    const totalRevenue = Number(revenueResult[0]?.total ?? 0);
+    const startingMoney = 0;
+
+    await sql`
+      INSERT INTO finance.annual_record (
+        id,
+        starting_date,
+        ending_date,
+        starting_money,
+        total_expenses,
+        total_revenue
+      )
+      VALUES (
+        ${normalizedYear},
+        ${start},
+        ${end},
+        ${startingMoney},
+        ${totalExpenses},
+        ${totalRevenue}
+      )
+    `;
+
+    return startingMoney + totalRevenue - totalExpenses;
+  }
+
+  const startingMoney = Number(record[0]?.starting_money ?? 0);
+  const totalRevenue = Number(record[0]?.total_revenue ?? 0);
+  const totalExpenses = Number(record[0]?.total_expenses ?? 0);
+  return startingMoney + totalRevenue - totalExpenses;
 }

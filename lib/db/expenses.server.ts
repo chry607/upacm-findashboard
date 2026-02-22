@@ -417,14 +417,14 @@ export async function getPreviousExpenses() {
   
   // Check if record exists in finance.annual-record
   const existingRecord = await sql`
-    SELECT id, "starting-date", "ending-date", "starting-money", "total-expenses", "total-revenue"
-    FROM finance."annual-record"
+    SELECT id, starting_date, ending_date, starting_money, total_expenses, total_revenue
+    FROM finance.annual_record
     WHERE id = ${prevId}
   `;
   
   if (existingRecord.length > 0) {
     // Record exists, calculate percentage increase
-    const prevExpenses = Number(existingRecord[0]["total-expenses"] ?? 0);
+    const prevExpenses = Number(existingRecord[0]?.total_expenses ?? 0);
     
     // Get current year expenses for comparison
     const currentExpenses = await getTotalExpensesAcademicYear(currentStartYear);
@@ -435,8 +435,8 @@ export async function getPreviousExpenses() {
     
     return {
       previousYear: `${prevStartYear}-${prevEndYear}`,
-      startDate: existingRecord[0]["starting-date"],
-      endDate: existingRecord[0]["ending-date"],
+      startDate: existingRecord[0]?.starting_date,
+      endDate: existingRecord[0]?.ending_date,
       totalExpenses: prevExpenses,
       previousTotalExpenses: prevExpenses,
       percentageIncrease: Math.round(percentageIncrease * 100) / 100
@@ -454,14 +454,14 @@ export async function getPreviousExpenses() {
   let startingMoney = 0;
   
   const prevPrevRecord = await sql`
-    SELECT "total-revenue", "total-expenses"
-    FROM finance."annual-record"
+    SELECT total_revenue, total_expenses
+    FROM finance.annual_record
     WHERE id = ${prevPrevId}
   `;
   
   if (prevPrevRecord.length > 0) {
-    const prevPrevRevenue = prevPrevRecord[0]["total-revenue"] ?? 0;
-    const prevPrevExpenses = prevPrevRecord[0]["total-expenses"] ?? 0;
+    const prevPrevRevenue = prevPrevRecord[0]?.total_revenue ?? 0;
+    const prevPrevExpenses = prevPrevRecord[0]?.total_expenses ?? 0;
     startingMoney = prevPrevRevenue - prevPrevExpenses;
   }
   
@@ -486,7 +486,7 @@ export async function getPreviousExpenses() {
   
   // Insert new record
   await sql`
-    INSERT INTO finance."annual-record" (id, "starting-date", "ending-date", "starting-money", "total-expenses", "total-revenue")
+    INSERT INTO finance.annual_record (id, starting_date, ending_date, starting_money, total_expenses, total_revenue)
     VALUES (${prevId}, ${prevStartDate}, ${prevEndDate}, ${startingMoney}, ${totalExpenses}, ${totalRevenue})
   `;
   
