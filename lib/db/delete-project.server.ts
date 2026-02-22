@@ -26,10 +26,10 @@ export async function deleteProject(projectId: string) {
   await sql.transaction(queries);
 
   // Revalidate affected pages on Vercel
-  revalidatePath(\"/project\");
-  revalidatePath(\"/\");
-  revalidatePath(\"/expenses\");
-  revalidatePath(\"/revenue\");
+  revalidatePath("/project");
+  revalidatePath("/");
+  revalidatePath("/expenses");
+  revalidatePath("/revenue");
 
   return { success: true };
 }

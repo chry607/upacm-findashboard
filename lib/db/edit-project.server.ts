@@ -117,11 +117,11 @@ export async function updateFullProject(projectId: string, data: ProjectFormData
   await sql.transaction(queries);
 
   // Revalidate affected pages on Vercel
-  revalidatePath(\"/project\");
-  revalidatePath(\"/\");
-  revalidatePath(\"/expenses\");
-  revalidatePath(\"/revenue\");
-  revalidatePath(\`/project/\${projectId}\`);
+  revalidatePath("/project");
+  revalidatePath("/");
+  revalidatePath("/expenses");
+  revalidatePath("/revenue");
+  revalidatePath(`/project/${projectId}`);
 
   return projectId;
 }
