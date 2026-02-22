@@ -3,10 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import SideNavigation from "@/components/ui/navigation";
 import { ThemeProvider } from "@/components/theme-provider";
-import ThemeToggle from "@/components/ui/theme-toggle";
-
-import { authClient } from '@/lib/auth/client'; 
-import { NeonAuthUIProvider, UserButton } from '@neondatabase/auth/react'; 
+import AuthProvider from "@/components/auth-provider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -45,25 +42,7 @@ export default function RootLayout({
         <div className="flex h-full min-h-screen">
           <SideNavigation />
           <main className="relative flex-1 overflow-y-auto p-6">
-            <NeonAuthUIProvider
-              authClient={authClient}
-              redirectTo="/"
-              signUp={false}
-              localization={{
-                SIGN_UP: "",
-                SIGN_UP_ACTION: "",
-                SIGN_UP_DESCRIPTION: "",
-                SIGN_UP_EMAIL: "",
-                DONT_HAVE_AN_ACCOUNT: "",
-                ALREADY_HAVE_AN_ACCOUNT: "",
-              }}
-            >
-              <header className="absolute right-6 top-10 z-10 flex items-center gap-2">
-                <ThemeToggle />
-                <UserButton size="icon" className="hover:cursor-pointer"/>
-              </header>
-              {children}
-            </NeonAuthUIProvider>
+            <AuthProvider>{children}</AuthProvider>
           </main>
         </div>
         <div id="global-alert-root" />
