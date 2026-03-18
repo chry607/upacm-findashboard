@@ -30,7 +30,7 @@ const SORT_COLUMNS: Record<string, string> = {
   implementation_date: "p.implementation_date",
   expenses: "total_expenses",
   revenue: "total_revenue",
-  net: "(COALESCE(SUM(r.amount), 0) - COALESCE(SUM(e.unit_price * e.quantity), 0))",
+  net: "(COALESCE(r.total_revenue, 0) - COALESCE(e.total_expenses, 0))",
 };
 
 export async function getProjects(filters: ProjectFilters = {}): Promise<ProjectWithTotals[]> {
@@ -39,159 +39,6 @@ export async function getProjects(filters: ProjectFilters = {}): Promise<Project
   // Validate sort column to prevent SQL injection
   const sortColumn = SORT_COLUMNS[sortBy] || SORT_COLUMNS.submission_date;
   const order = sortOrder === "asc" ? "ASC" : "DESC";
-
-  // If no filters, use tagged template
-  if (!search && (!status || status === "all") && !startDate && !endDate) {
-    // For tagged templates, we need to handle sorting differently
-    // Using a simple approach with conditional queries
-    let rows;
-    
-    if (sortBy === "expenses" && sortOrder === "asc") {
-      rows = await sql`
-        SELECT 
-          p.id, p.name, p."desc", p.implementation_date, p.submission_date, p.status,
-          COALESCE(SUM(e.unit_price * e.quantity), 0) as total_expenses,
-          COALESCE(SUM(r.amount), 0) as total_revenue
-        FROM finance.projects p
-        LEFT JOIN finance.expenses e ON e.project_id = p.id
-        LEFT JOIN finance.revenue r ON r.project_id = p.id
-        GROUP BY p.id, p.name, p."desc", p.implementation_date, p.submission_date, p.status
-        ORDER BY total_expenses ASC
-      `;
-    } else if (sortBy === "expenses" && sortOrder === "desc") {
-      rows = await sql`
-        SELECT 
-          p.id, p.name, p."desc", p.implementation_date, p.submission_date, p.status,
-          COALESCE(SUM(e.unit_price * e.quantity), 0) as total_expenses,
-          COALESCE(SUM(r.amount), 0) as total_revenue
-        FROM finance.projects p
-        LEFT JOIN finance.expenses e ON e.project_id = p.id
-        LEFT JOIN finance.revenue r ON r.project_id = p.id
-        GROUP BY p.id, p.name, p."desc", p.implementation_date, p.submission_date, p.status
-        ORDER BY total_expenses DESC
-      `;
-    } else if (sortBy === "revenue" && sortOrder === "asc") {
-      rows = await sql`
-        SELECT 
-          p.id, p.name, p."desc", p.implementation_date, p.submission_date, p.status,
-          COALESCE(SUM(e.unit_price * e.quantity), 0) as total_expenses,
-          COALESCE(SUM(r.amount), 0) as total_revenue
-        FROM finance.projects p
-        LEFT JOIN finance.expenses e ON e.project_id = p.id
-        LEFT JOIN finance.revenue r ON r.project_id = p.id
-        GROUP BY p.id, p.name, p."desc", p.implementation_date, p.submission_date, p.status
-        ORDER BY total_revenue ASC
-      `;
-    } else if (sortBy === "revenue" && sortOrder === "desc") {
-      rows = await sql`
-        SELECT 
-          p.id, p.name, p."desc", p.implementation_date, p.submission_date, p.status,
-          COALESCE(SUM(e.unit_price * e.quantity), 0) as total_expenses,
-          COALESCE(SUM(r.amount), 0) as total_revenue
-        FROM finance.projects p
-        LEFT JOIN finance.expenses e ON e.project_id = p.id
-        LEFT JOIN finance.revenue r ON r.project_id = p.id
-        GROUP BY p.id, p.name, p."desc", p.implementation_date, p.submission_date, p.status
-        ORDER BY total_revenue DESC
-      `;
-    } else if (sortBy === "net" && sortOrder === "asc") {
-      rows = await sql`
-        SELECT 
-          p.id, p.name, p."desc", p.implementation_date, p.submission_date, p.status,
-          COALESCE(SUM(e.unit_price * e.quantity), 0) as total_expenses,
-          COALESCE(SUM(r.amount), 0) as total_revenue
-        FROM finance.projects p
-        LEFT JOIN finance.expenses e ON e.project_id = p.id
-        LEFT JOIN finance.revenue r ON r.project_id = p.id
-        GROUP BY p.id, p.name, p."desc", p.implementation_date, p.submission_date, p.status
-        ORDER BY (COALESCE(SUM(r.amount), 0) - COALESCE(SUM(e.unit_price * e.quantity), 0)) ASC
-      `;
-    } else if (sortBy === "net" && sortOrder === "desc") {
-      rows = await sql`
-        SELECT 
-          p.id, p.name, p."desc", p.implementation_date, p.submission_date, p.status,
-          COALESCE(SUM(e.unit_price * e.quantity), 0) as total_expenses,
-          COALESCE(SUM(r.amount), 0) as total_revenue
-        FROM finance.projects p
-        LEFT JOIN finance.expenses e ON e.project_id = p.id
-        LEFT JOIN finance.revenue r ON r.project_id = p.id
-        GROUP BY p.id, p.name, p."desc", p.implementation_date, p.submission_date, p.status
-        ORDER BY (COALESCE(SUM(r.amount), 0) - COALESCE(SUM(e.unit_price * e.quantity), 0)) DESC
-      `;
-    } else if (sortBy === "name" && sortOrder === "asc") {
-      rows = await sql`
-        SELECT 
-          p.id, p.name, p."desc", p.implementation_date, p.submission_date, p.status,
-          COALESCE(SUM(e.unit_price * e.quantity), 0) as total_expenses,
-          COALESCE(SUM(r.amount), 0) as total_revenue
-        FROM finance.projects p
-        LEFT JOIN finance.expenses e ON e.project_id = p.id
-        LEFT JOIN finance.revenue r ON r.project_id = p.id
-        GROUP BY p.id, p.name, p."desc", p.implementation_date, p.submission_date, p.status
-        ORDER BY p.name ASC
-      `;
-    } else if (sortBy === "name" && sortOrder === "desc") {
-      rows = await sql`
-        SELECT 
-          p.id, p.name, p."desc", p.implementation_date, p.submission_date, p.status,
-          COALESCE(SUM(e.unit_price * e.quantity), 0) as total_expenses,
-          COALESCE(SUM(r.amount), 0) as total_revenue
-        FROM finance.projects p
-        LEFT JOIN finance.expenses e ON e.project_id = p.id
-        LEFT JOIN finance.revenue r ON r.project_id = p.id
-        GROUP BY p.id, p.name, p."desc", p.implementation_date, p.submission_date, p.status
-        ORDER BY p.name DESC
-      `;
-    } else if (sortBy === "implementation_date" && sortOrder === "asc") {
-      rows = await sql`
-        SELECT 
-          p.id, p.name, p."desc", p.implementation_date, p.submission_date, p.status,
-          COALESCE(SUM(e.unit_price * e.quantity), 0) as total_expenses,
-          COALESCE(SUM(r.amount), 0) as total_revenue
-        FROM finance.projects p
-        LEFT JOIN finance.expenses e ON e.project_id = p.id
-        LEFT JOIN finance.revenue r ON r.project_id = p.id
-        GROUP BY p.id, p.name, p."desc", p.implementation_date, p.submission_date, p.status
-        ORDER BY p.implementation_date ASC
-      `;
-    } else if (sortBy === "implementation_date" && sortOrder === "desc") {
-      rows = await sql`
-        SELECT 
-          p.id, p.name, p."desc", p.implementation_date, p.submission_date, p.status,
-          COALESCE(SUM(e.unit_price * e.quantity), 0) as total_expenses,
-          COALESCE(SUM(r.amount), 0) as total_revenue
-        FROM finance.projects p
-        LEFT JOIN finance.expenses e ON e.project_id = p.id
-        LEFT JOIN finance.revenue r ON r.project_id = p.id
-        GROUP BY p.id, p.name, p."desc", p.implementation_date, p.submission_date, p.status
-        ORDER BY p.implementation_date DESC
-      `;
-    } else {
-      // Default: submission_date desc
-      rows = await sql`
-        SELECT 
-          p.id, p.name, p."desc", p.implementation_date, p.submission_date, p.status,
-          COALESCE(SUM(e.unit_price * e.quantity), 0) as total_expenses,
-          COALESCE(SUM(r.amount), 0) as total_revenue
-        FROM finance.projects p
-        LEFT JOIN finance.expenses e ON e.project_id = p.id
-        LEFT JOIN finance.revenue r ON r.project_id = p.id
-        GROUP BY p.id, p.name, p."desc", p.implementation_date, p.submission_date, p.status
-        ORDER BY p.submission_date DESC
-      `;
-    }
-
-    return rows.map((row) => ({
-      id: row.id as string,
-      name: row.name as string,
-      desc: row.desc as string | null,
-      implementation_date: new Date(row.implementation_date as string),
-      submission_date: new Date(row.submission_date as string),
-      status: row.status as string,
-      total_expenses: Number(row.total_expenses),
-      total_revenue: Number(row.total_revenue),
-    }));
-  }
 
   // Build conditions and params for filtered queries
   const conditions: string[] = [];
@@ -227,13 +74,20 @@ export async function getProjects(filters: ProjectFilters = {}): Promise<Project
       p.implementation_date,
       p.submission_date,
       p.status,
-      COALESCE(SUM(e.unit_price * e.quantity), 0) as total_expenses,
-      COALESCE(SUM(r.amount), 0) as total_revenue
+      COALESCE(e.total_expenses, 0) as total_expenses,
+      COALESCE(r.total_revenue, 0) as total_revenue
     FROM finance.projects p
-    LEFT JOIN finance.expenses e ON e.project_id = p.id
-    LEFT JOIN finance.revenue r ON r.project_id = p.id
+    LEFT JOIN (
+      SELECT project_id, SUM(unit_price * quantity) AS total_expenses
+      FROM finance.expenses
+      GROUP BY project_id
+    ) e ON e.project_id = p.id
+    LEFT JOIN (
+      SELECT project_id, SUM(amount) AS total_revenue
+      FROM finance.revenue
+      GROUP BY project_id
+    ) r ON r.project_id = p.id
     ${whereClause}
-    GROUP BY p.id, p.name, p."desc", p.implementation_date, p.submission_date, p.status
     ORDER BY ${sortColumn} ${order}
   `;
 
